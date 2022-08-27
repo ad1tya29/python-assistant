@@ -1,5 +1,8 @@
+import json
+from urllib.request import urlopen
 import pyttsx3
-from requests import Request, request #pip install pyttsx3
+from requests import Request, request
+import requests #pip install pyttsx3
 import speech_recognition as sr #pip install speechRecognition
 import datetime
 import wikipedia #pip install wikipedia
@@ -8,6 +11,7 @@ import os
 import smtplib
 from newsapi import NewsApiClient
 import pyjokes
+
 
 engine = pyttsx3.init('sapi5')
 voices = engine.getProperty('voices')
@@ -52,6 +56,7 @@ def takeCommand():
         print("Recognizing...")    
         query = r.recognize_google(audio, language='en-in')
         print(f"User said: {query}\n")
+        
 
     except Exception as e:
         # print(e)    
@@ -67,24 +72,20 @@ def sendEmail(to, content):
     server.sendmail('youremail@gmail.com', to, content)
     server.close()
 
-def news():
-    newsapi = NewsApiClient(api_key='d4cb49bf88d7493da38284b5b394ef8a')
+# def news():
+#     newsapi = NewsApiClient(api_key='d4cb49bf88d7493da38284b5b394ef8a')
    
-    data = newsapi.get_top_headlines(language="en", page_size=5)
-    newsData = data["articles"]
-    for y in newsData:
-        speak(y["description"])
+#     data = newsapi.get_top_headlines(language="en", page_size=5)
+#     newsData = data["articles"]
+#     for y in newsData:
+#         speak(y["description"])
 
-def weather():
-    city = "Nagpur"
-    res = Request.get(
-        f"http://api.openweathermap.org/data/2.5/weather?q={city}&appid=c651e20acb64c367b992335a8f90c8bd&units=metric").json()
-    temp = res["weather"][0]["description"]
-    temp2 = res["main"]["temp"]
-    speak(
-        f"Temprature is {format(temp2)} degree Celsius \n Weather is {format(temp)}")
+
+
 
 if __name__ == "__main__":
+    clear = lambda: os.system('cls')
+    clear()
     greet()
     wishMe()
     
@@ -104,15 +105,14 @@ if __name__ == "__main__":
         elif 'open youtube' in query:
             webbrowser.open("youtube.com")
 
-        elif 'open google' in query:
+        elif 'google' in query:
             webbrowser.open("google.com")
-
         elif 'open stackoverflow' in query:
             webbrowser.open("stackoverflow.com")   
 
 
-        elif 'play music' or 'music' in query:
-            music_dir = 'C:\VA - New Music Releases Week 28 of 2022 (Mp3 320kbps Songs) [PMEDIA] ⭐️'
+        elif 'music' in query:
+            music_dir = 'E:\SONGS\Various Artist - 100 Uplifting Songs (2021) Mp3 320kbps [PMEDIA] ⭐️'    
             songs = os.listdir(music_dir)
             print(songs)    
             os.startfile(os.path.join(music_dir, songs[0]))
@@ -134,18 +134,51 @@ if __name__ == "__main__":
                 print(e)
                 speak("Email is not sent")    
 
-        elif 'news' or 'tell me news' in query:
-            news()
+        elif 'news' in query:
+             
+            try:
+                jsonObj = urlopen('https://newsapi.org/v2/top-headlines?country=in&apiKey=d4cb49bf88d7493da38284b5b394ef8a')
+                data = json.load(jsonObj)
+                i = 1
+                 
+                speak('here are some top news from the times of india')
+                print('''=============== TIMES OF INDIA ============'''+ '\n')
+                 
+                for item in data['articles']:
+                     
+                    print(str(i) + '. ' + item['title'] + '\n')
+                    print(item['description'] + '\n')
+                    speak(str(i) + '. ' + item['title'] + '\n')
+                    i += 1
+
+                    if i==4:
+                        break
+            except Exception as e:
+                 
+                print(str(e))
+ 
 
         elif 'thank you'  in query:
             speak("welcome")
             
-        elif 'weather' in query:
-            speak("here is the weather")
-            weather()
+        
+
 
         elif ("joke" in query):
             speak(pyjokes.get_joke())
+            print()
+
+
+        elif 'how are you' in query:
+            speak("I am fine, Thank you")
+            speak("How are you, Sir")
+ 
+        elif 'fine' in query or "good" in query:
+            speak("It's good to know that your fine")
+
+
+
+
 
 
             
